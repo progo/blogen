@@ -25,6 +25,8 @@
 (def git-log-date-format
   (clj-time.format/formatters :rfc822))
 
+;;; TODO: need to specify a minor/major-edit tick here.
+
 (defn read-revision
   "Read a revision from git output."
   [rev-str]
