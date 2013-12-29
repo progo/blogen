@@ -27,6 +27,20 @@
 ;; structures. Second round, we use all that data and write the
 ;; changes down.
 
+(defn original-file-location
+  "Given output HTML file, try to determine the location of original
+  .org file. Relies on absolute paths that are found in config."
+  [file]
+  (if (.startsWith file blog-dir)
+    (-> (str original-dir
+             (subs file (count blog-dir)))
+        (.replaceFirst "\\.html$" ".org"))))
+
+(defn file-depth
+  "Calculate the directory depth of the given path."
+  [file]
+  0)
+
 (defn collect-data
   "Given seq of file names read them and parse into a seq of maps."
   [files]
