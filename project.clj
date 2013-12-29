@@ -1,5 +1,6 @@
 (defproject blogen "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.5.1"]
+                 [me.raynes/conch "0.6.0"]
                  [clj-time "0.6.0"]
                  [hiccup "1.0.4"]
                  [enlive "1.1.5"]

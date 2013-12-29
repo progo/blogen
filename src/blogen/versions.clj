@@ -7,10 +7,20 @@
   revision.
 
   DEFINITION: A revision is a map with keys :hash, :date and :note."
-  (:require [clj-time.format])
-  )
+  (:require [clj-time.format]
+            [me.raynes.conch :refer [programs]])
+  (:use [blogen.config]))
+
+(programs git)
 
 ;;; git log --format="%%HASH: %h %n%%DATE: %aD %n%%NOTE: %s %n%%%%"
+;;; both --git-dir and --work-tree need to be specified.
+
+(def git-arguments
+  [(str "--git-dir=" original-dir "/.git/")
+   (str "--work-tree=" original-dir)
+   "log"
+   "--format=%%HASH: %h %n%%DATE: %aD %n%%NOTE: %s %n%%%%"])
 
 (def git-log-date-format
   (clj-time.format/formatters :rfc822))
@@ -32,4 +42,7 @@
 (defn history
   "Get and parse revision history of given file."
   [path]
-  (seq [(read-revision "")]))
+  (-> (apply git (conj git-arguments path))
+      (.split "\\n%%\\n")
+      seq
+      ((partial map read-revision))))

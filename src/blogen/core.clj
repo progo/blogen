@@ -5,6 +5,7 @@
    [fs.core :as fs]
    [blogen.post :as post]
    [blogen.templ :as templ]
+   [blogen.versions :as versions]
    [net.cgrand.tagsoup :as enlive-ts]
    [net.cgrand.enlive-html :as html]))
 
@@ -45,11 +46,13 @@
   "Given seq of file names read them and parse into a seq of maps."
   [files]
   (for [file files]
-    (let [post (read-html-file file)]
+    (let [original (original-file-location file)
+          post (read-html-file file)]
       (merge
        (post/all-info post)
-       {:history '()}
-       {:path file}))))
+       {:history (versions/history original)}
+       {:original-path original
+        :path file}))))
 
 (defn- post-data-rand
   "Debug aux for examining the data we collect from posts."
