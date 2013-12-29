@@ -1,5 +1,7 @@
 (ns blogen.post
-  (:require [net.cgrand.enlive-html :as html]))
+  (:require
+   [clj-time.format]
+   [net.cgrand.enlive-html :as html]))
 
 (defn title
   "Get the title of the post."
@@ -16,9 +18,9 @@
        (map :content)
        (map first)))
 
-;; We may consider closedness as the original publication time.
-(defn closed-time
-  ""
+(defn created-date
+  "Collect the CLOSED timestamp of the post as the creation date.
+  Return a DateTime object."
   [post]
   (->> (html/select post [:span.timestamp-wrapper])
        (filter (fn [tag]
@@ -29,7 +31,12 @@
                      (= "CLOSED:"))))
        first
        ((fn [x] (html/select x [:span.timestamp])))
-       first :content first))
+       first
+       :content
+       first
+       (clj-time.format/parse
+        (clj-time.format/formatter "[yyyy-MM-dd EEE HH:mm]"))
+       ))
 
 (defn contents-raw
   "Get the raw (unprocessed) contents of the post"
@@ -87,9 +94,29 @@
         ; (html/at [#{:h1 :h2 :h3 :h4 :h5}] clean-headings)
         )))
 
-  
+;; this is crap. One compositing function should be enough.
 (defn complete-data
   [data]
   (for [post-data data]
     (let [post (:parsed post-data)]
       (assoc post-data :title (title post)))))
+
+;; The UID/persistent ID tries to keep as simple as possible.
+(defn persistent-id
+  "A unique string ID that should be as persistent as possible, stay
+  the same in case of one single post entry no matter what."
+  [post]
+  {:post [(seq %)]}
+  (clj-time.format/unparse
+   (clj-time.format/formatter "yyyyMMdd_HHmm")
+   (created-date post)))
+
+{:file ""
+ :uid ""
+ :title ""
+ :contents {}
+ :tags '()
+ :created 'DateTime
+ :history '()
+ }
+ 
