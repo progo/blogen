@@ -1,5 +1,6 @@
 (ns blogen.post
   (:require
+   [dire.core :refer [with-handler!]]
    [clj-time.format]
    [net.cgrand.enlive-html :as html]))
 
@@ -37,6 +38,11 @@
        (clj-time.format/parse
         (clj-time.format/formatter "[yyyy-MM-dd EEE HH:mm]"))
        ))
+
+(with-handler! #'created-date
+  "Skip NPE, indicating there was no date there."
+  java.lang.NullPointerException
+  (constantly nil))
 
 (defn contents-raw
   "Get the raw (unprocessed) contents of the post"
@@ -94,13 +100,6 @@
         ; (html/at [#{:h1 :h2 :h3 :h4 :h5}] clean-headings)
         )))
 
-;; this is crap. One compositing function should be enough.
-(defn complete-data
-  [data]
-  (for [post-data data]
-    (let [post (:parsed post-data)]
-      (assoc post-data :title (title post)))))
-
 ;; The UID/persistent ID tries to keep as simple as possible.
 (defn persistent-id
   "A unique string ID that should be as persistent as possible, stay
@@ -111,12 +110,12 @@
    (clj-time.format/formatter "yyyyMMdd_HHmm")
    (created-date post)))
 
-{:file ""
- :uid ""
- :title ""
- :contents {}
- :tags '()
- :created 'DateTime
- :history '()
- }
- 
+(defn all-info
+  "Given parsed post map, collect all details in a map to return."
+  [post]
+  {:uid (persistent-id post)
+   :title (title post)
+   :tags (tags post)
+   :created (created-date post)
+   :content (contents-clean post)
+   :original-content post})

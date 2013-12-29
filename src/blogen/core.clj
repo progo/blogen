@@ -27,21 +27,36 @@
 ;; structures. Second round, we use all that data and write the
 ;; changes down.
 
+(defn collect-data
+  "Given seq of file names read them and parse into a seq of maps."
+  [files]
+  (for [file files]
+    (let [post (read-html-file file)]
+      (merge
+       (post/all-info post)
+       {:history '()}
+       {:path file}))))
+
+(defn- post-data-rand
+  "Debug aux for examining the data we collect from posts."
+  []
+  (let [randpost (rand-nth (collect-files blog-dir excludes))]
+    (-> (collect-data [randpost])
+        first
+        (assoc :content 'STRIPPED)
+        (assoc :original-content 'STRIPPED))))
+
 (defn transform!
   []
   (let [files-to-process (collect-files blog-dir excludes)
-        collected-data (for [post files-to-process]
-                         {:path post
-                          :parsed (read-html-file post)})
-        collected-data (post/complete-data collected-data)
-        ]
+        collected-data (collect-data files-to-process)]
     ;; writeup should be largely routine after all the mangling in
     ;; 'collected-data'
     (doseq [post collected-data]
       (spit (:path post)
             (apply str
              (templ/post-template (:title post) 
-                                  (post/contents-clean (:parsed post))))))
+                                  (:content post)))))
 
     ;; then the RSS feeds, tag indices, front page, customized index
     ;; files
