@@ -69,6 +69,8 @@
   [post]
   (let [contents (contents-raw post)]
     (-> contents
+        ; duplicate headline off
+        (html/at [:h1.title] nil)
         ; tags off
         (html/at [:span.tag] nil)
         ; closed TS off. The empty :p is left.
