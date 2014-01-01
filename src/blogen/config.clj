@@ -10,4 +10,4 @@
 (def template-dir "/home/progo/dokumentit/blog/templates/")
 
 ;; Set of full path patterns that are to be excluded
-(def excludes #{})
+(def excludes #{#"^.*/templates/.*html$"})

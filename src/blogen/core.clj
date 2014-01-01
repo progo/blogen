@@ -24,10 +24,6 @@
          (map (memfn getPath))
          (filter (complement excluded?)))))
 
-;; Two-pass reading. First round, we collect so much stuff in data
-;; structures. Second round, we use all that data and write the
-;; changes down.
-
 (defn original-file-location
   "Given output HTML file, try to determine the location of original
   .org file. Relies on absolute paths that are found in config."
@@ -38,9 +34,14 @@
         (.replaceFirst "\\.html$" ".org"))))
 
 (defn file-depth
-  "Calculate the directory depth of the given path."
-  [file]
-  0)
+  "Calculate the directory depth of the given path. Assumes absolute
+  paths that begin with config var `blog-dir'."
+  [path]
+  (-> (subs path (count blog-dir))
+      (.replaceFirst "^/" "")
+      seq
+      ((partial filter #{\/}))
+      count))
 
 (defn collect-data
   "Given seq of file names read them and parse into a seq of maps."
@@ -51,25 +52,23 @@
       (merge
        (post/all-info post)
        {:history (versions/history original)}
-       {:original-path original
+       {:path-depth (file-depth file)
+        :original-path original
         :path file}))))
 
-(defn- post-data-rand
-  "Debug aux for examining the data we collect from posts."
-  []
-  (let [randpost (rand-nth (collect-files blog-dir excludes))]
-    (-> (collect-data [randpost])
-        first
-        (assoc :content 'STRIPPED)
-        (assoc :original-content 'STRIPPED))))
-
-(defn transform!
+(defn- read-files
+  "First pass. Collect all files and their data in one data structure.
+  These are the posts within their own contexts."
   []
   (let [files-to-process (collect-files blog-dir excludes)
         collected-data (collect-data files-to-process)]
-    ;; writeup should be largely routine after all the mangling in
-    ;; 'collected-data'
-    (doseq [post collected-data]
+    collected-data))
+
+(defn transform!
+  "Go through all passes, starting afresh and producing the final result."
+  []
+  (let [posts (read-files)]
+    (doseq [post posts]
       (spit (:path post)
             (apply str
              (templ/post-template (:title post) 
@@ -78,3 +77,10 @@
     ;; then the RSS feeds, tag indices, front page, customized index
     ;; files
     ))
+
+(defn- post-data-rand
+  "Debug aux for examining the data we collect from posts."
+  []
+  (-> (rand-nth (read-files))
+      (assoc :content 'STRIPPED)
+      (assoc :original-content 'STRIPPED)))
