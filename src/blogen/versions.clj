@@ -25,7 +25,12 @@
 (def git-log-date-format
   (clj-time.format/formatters :rfc822))
 
-;;; TODO: need to specify a minor/major-edit tick here.
+(defn major-revision?
+  "Basing on revision data (map) determine if this revision is a major
+  one."
+  [rev]
+  (boolean (re-find #"MAJOR|XXX|UP"
+                    (:note rev))))
 
 (defn read-revision
   "Read a revision from git output."
@@ -38,7 +43,8 @@
                         (p 2)]))
         rev (update-in rev [:date]
                        (partial clj-time.format/parse
-                                git-log-date-format))]
+                                git-log-date-format))
+        rev (assoc rev :major? (major-revision? rev))]
     rev))
 
 (defn history
