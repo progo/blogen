@@ -3,6 +3,7 @@
    [blogen.config])
   (:require
    [fs.core :as fs]
+   [blogen.sort :as sort]
    [blogen.post :as post]
    [blogen.templ :as templ]
    [blogen.versions :as versions]
@@ -60,9 +61,18 @@
   "First pass. Collect all files and their data in one data structure.
   These are the posts within their own contexts."
   []
-  (let [files-to-process (collect-files blog-dir excludes)
-        collected-data (collect-data files-to-process)]
-    collected-data))
+  (-> (collect-files blog-dir excludes)
+      collect-data
+      ((partial filter post/ready-to-publish?))))
+
+(defn- read-files'
+  "Debug aux for examining the data we collect from posts."
+  []
+  (map (fn [p]
+         (-> p
+             (assoc :content 'STRIPPED)
+             (assoc :original-content 'STRIPPED)))
+       (read-files)))
 
 (defn transform!
   "Go through all passes, starting afresh and producing the final result."
@@ -77,10 +87,3 @@
     ;; then the RSS feeds, tag indices, front page, customized index
     ;; files
     ))
-
-(defn- post-data-rand
-  "Debug aux for examining the data we collect from posts."
-  []
-  (-> (rand-nth (read-files))
-      (assoc :content 'STRIPPED)
-      (assoc :original-content 'STRIPPED)))

@@ -119,3 +119,12 @@
    :created (created-date post)
    :content (contents-clean post)
    :original-content post})
+
+(defn ready-to-publish?
+  "Is given post a ready one, ready to go in the internets? The
+  argument 'post' is a parsed map of a post."
+  [post]
+  (not (or
+        (nil? (:created post))
+        (some #{"no-export" "wait"}
+              (:tags post)))))
