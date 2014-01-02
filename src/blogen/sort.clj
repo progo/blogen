@@ -5,11 +5,18 @@
   (:use
    [blogen.config]))
 
-(defn by-creation-date
-  "sort by the original creation date (not latest modification). Order
-  is DESC."
-  [post-a post-b]
-  (apply time/after? (map :created [post-a post-b])))
+(defn- make-post-comparator-func
+  "Generalize over most of our sorting needs"
+  [extractor-fn comparator-fn]
+  (fn [A B]
+    (let [d-A (extractor-fn A)
+          d-B (extractor-fn B)]
+      (comparator-fn d-A d-B))))
+
+(def by-creation-date
+  "Sort by the original creation date (not latest
+  modification). Order is DESC."
+  (make-post-comparator-func :created time/after?))
 
 ;; We didn't need to sort those revisions within one history again.
 ;; Git has us covered. (sort-by :date time/after? revs)
@@ -28,20 +35,13 @@
        (first major-revs)
        (last revs)))))
 
-;;; Yup, seems super wet to me. All three funcs can be generalized
-;;; over this pattern.
-
-(defn by-latest-revision
+(def by-latest-revision
   "Sort by most recent modifications. Order by desc."
-  [post-a post-b]
-  (apply time/after? (map newest-revision-date
-                          [post-a post-b])))
+  (make-post-comparator-func newest-revision-date time/after?))
 
-(defn by-latest-major-revision
+(def by-latest-major-revision
   "Sort by most recent major modifications. Order by desc."
-  [post-a post-b]
-  (apply time/after? (map newest-major-revision-date
-                          [post-a post-b])))
+  (make-post-comparator-func newest-major-revision-date time/after?))
 
 (defn by-word-count
   ""
