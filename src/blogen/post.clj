@@ -70,7 +70,7 @@
             (seq (html/select par [#{:img :embed}])))
     par))
 
-;; TODO: write zipper to walk through tagsoup 'h' and do the NBSP
+;; TODO: write walker to walk through tagsoup 'h' and do the NBSP
 ;; replace in every string found.
 (defn clean-headings
   "Clear nbsp's from headings."
@@ -110,15 +110,23 @@
    (clj-time.format/formatter "yyyyMMdd_HHmm")
    (created-date post)))
 
+(defn count-words
+  "Collect a number of words in the post."
+  [post]
+  (let [txt (first (html/texts post))]
+    (count (re-seq #"\s+" txt))))
+
 (defn all-info
   "Given parsed post map, collect all details in a map to return."
   [post]
-  {:uid (persistent-id post)
-   :title (title post)
-   :tags (tags post)
-   :created (created-date post)
-   :content (contents-clean post)
-   :original-content post})
+  (let [contents-cleaned (contents-clean post)]
+    {:uid (persistent-id post)
+     :title (title post)
+     :tags (tags post)
+     :created (created-date post)
+     :content contents-cleaned
+     :word-count (count-words contents-cleaned)
+     :original-content post}))
 
 (defn ready-to-publish?
   "Is given post a ready one, ready to go in the internets? The
