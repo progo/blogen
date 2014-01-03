@@ -43,6 +43,6 @@
   "Sort by most recent major modifications. Order by desc."
   (make-post-comparator-func newest-major-revision-date time/after?))
 
-(defn by-word-count
-  ""
-  [post-a post-b])
+(def by-word-count
+  "Sort by word count"
+  (make-post-comparator-func :word-count >))
