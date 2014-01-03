@@ -9,8 +9,7 @@
   [post]
   (-> (html/select post [:#content :.title])
       first
-      :content
-      first))
+      html/text))
 
 (defn tags
   "Get the tags of the post. Returns a seq."
