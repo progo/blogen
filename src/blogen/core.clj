@@ -57,7 +57,7 @@
         :original-path original
         :path file}))))
 
-(defn- read-files
+(defn read-files
   "First pass. Collect all files and their data in one data structure.
   These are the posts within their own contexts."
   []
@@ -65,14 +65,17 @@
       collect-data
       ((partial filter post/ready-to-publish?))))
 
-(defn- read-files'
-  "Debug aux for examining the data we collect from posts."
-  []
-  (map (fn [p]
-         (-> p
-             (assoc :content 'STRIPPED)
-             (assoc :original-content 'STRIPPED)))
-       (read-files)))
+;; suggestions, todo:
+;; - chronologically (or by other sort criterion) next/previous article paths
+;; - similar articles (by tag intersection and perhaps title exploding)
+(defn analyze-posts
+  "Given input seq of posts, collect and generalize data within the
+  context of all posts."
+  [posts]
+  (let [creation-order (sort sort/by-creation-date posts)]
+    (for [p posts]
+      ;; TODO: find our p in 'creation-order' and check next/prev ones.
+      p)))
 
 (defn transform!
   "Go through all passes, starting afresh and producing the final result."
@@ -87,3 +90,20 @@
     ;; then the RSS feeds, tag indices, front page, customized index
     ;; files
     ))
+
+
+;; Debug toolsies
+(let [dbg-strip-big-bits
+      (fn [p]
+        (-> p
+            (assoc :content 'STRIPPED)
+            (assoc :original-content 'STRIPPED)))]
+  (defn- read-files'
+    "Debug aux for examining the data we collect from posts."
+    []
+    (map dbg-strip-big-bits (read-files)))
+  (defn- analyze-posts'
+    "Debug aux again to help with 2nd phase."
+    []
+    (let [ap (analyze-posts (read-files))]
+      (map dbg-strip-big-bits ap))))
