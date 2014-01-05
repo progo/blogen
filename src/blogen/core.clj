@@ -3,6 +3,7 @@
    [blogen.config])
   (:require
    [fs.core :as fs]
+   [blogen.analysis :as analysis]
    [blogen.sort :as sort]
    [blogen.post :as post]
    [blogen.templ :as templ]
@@ -65,18 +66,6 @@
       collect-data
       ((partial filter post/ready-to-publish?))))
 
-;; suggestions, todo:
-;; - chronologically (or by other sort criterion) next/previous article paths
-;; - similar articles (by tag intersection and perhaps title exploding)
-(defn analyze-posts
-  "Given input seq of posts, collect and generalize data within the
-  context of all posts."
-  [posts]
-  (let [creation-order (sort sort/by-creation-date posts)]
-    (for [p posts]
-      ;; TODO: find our p in 'creation-order' and check next/prev ones.
-      p)))
-
 (defn transform!
   "Go through all passes, starting afresh and producing the final result."
   []
@@ -91,7 +80,6 @@
     ;; files
     ))
 
-
 ;; Debug toolsies
 (let [dbg-strip-big-bits
       (fn [p]
@@ -105,5 +93,5 @@
   (defn- analyze-posts'
     "Debug aux again to help with 2nd phase."
     []
-    (let [ap (analyze-posts (read-files))]
+    (let [ap (analysis/analyze-posts (read-files))]
       (map dbg-strip-big-bits ap))))
