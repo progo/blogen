@@ -109,6 +109,14 @@
    (clj-time.format/formatter "yyyyMMdd_HHmm")
    (created-date post)))
 
+(defn taste
+  "Grab the first paragraph of the post."
+  [post]
+  (-> post
+      (html/select [:p])
+      first
+      (html/at [:p] html/unwrap)))
+
 (defn count-words
   "Collect a number of words in the post."
   [post]
@@ -124,6 +132,7 @@
      :tags (tags post)
      :created (created-date post)
      :content contents-cleaned
+     :taste (taste contents-cleaned)
      :word-count (count-words contents-cleaned)
      :original-content post}))
 
