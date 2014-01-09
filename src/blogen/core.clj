@@ -30,16 +30,16 @@
   "Given output HTML file, try to determine the location of original
   .org file. Relies on absolute paths that are found in config."
   [file]
-  (if (.startsWith file blog-dir)
-    (-> (str original-dir
-             (subs file (count blog-dir)))
+  (if (.startsWith file (:blog-dir @config))
+    (-> (str (:original-dir @config)
+             (subs file (count (:blog-dir @config))))
         (.replaceFirst "\\.html$" ".org"))))
 
 (defn file-depth
   "Calculate the directory depth of the given path. Assumes absolute
   paths that begin with config var `blog-dir'."
   [path]
-  (-> (subs path (count blog-dir))
+  (-> (subs path (count (:blog-dir @config)))
       (.replaceFirst "^/" "")
       seq
       ((partial filter #{\/}))
@@ -62,7 +62,7 @@
   "First pass. Collect all files and their data in one data structure.
   These are the posts within their own contexts."
   []
-  (-> (collect-files blog-dir excludes)
+  (-> (collect-files (:blog-dir @config) (:excludes @config))
       collect-data
       ((partial filter post/ready-to-publish?))))
 

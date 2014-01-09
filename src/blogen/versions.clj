@@ -17,10 +17,11 @@
 ;;; both --git-dir and --work-tree need to be specified.
 
 (def git-arguments
-  [(str "--git-dir=" original-dir "/.git/")
-   (str "--work-tree=" original-dir)
-   "log"
-   "--format=%%HASH: %h %n%%DATE: %aD %n%%NOTE: %s %n%%%%"])
+  (let [orig-dir (:original-dir @config)]
+    [(str "--git-dir=" orig-dir "/.git/")
+     (str "--work-tree=" orig-dir)
+     "log"
+     "--format=%%HASH: %h %n%%DATE: %aD %n%%NOTE: %s %n%%%%"]))
 
 (def git-log-date-format
   (clj-time.format/formatters :rfc822))

@@ -1,9 +1,7 @@
 (ns blogen.sort
   "Collect and implement various methods to sort the seq of posts."
   (:require
-   [clj-time.core :as time])
-  (:use
-   [blogen.config]))
+   [clj-time.core :as time]))
 
 (defn- make-post-comparator-func
   "Generalize over most of our sorting needs"

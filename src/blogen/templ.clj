@@ -9,7 +9,7 @@
   (java.io.FileReader. path))
 (defn- with-template-dir
   [filename]
-  (str template-dir "/" filename))
+  (str (:template-dir @config) "/" filename))
 (defn- from-template
   "Take just a file name and produce a FileReader object for enlive to
   use."
@@ -29,11 +29,11 @@
    [:link
     {:rel "stylesheet"
      :type "text/css"
-     :href (with-depth depth main-css-location)}]))
+     :href (with-depth depth (:main-css-location @config))}]))
 
 (defn make-title
   [s]
-  (str s " - " site-title))
+  (str s " - " (:site-title @config)))
 
 (html/deftemplate post-template (from-template "post.html")
   [head-extra title content]
