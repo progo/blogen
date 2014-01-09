@@ -14,3 +14,5 @@
 
 ;; Relative location of the main CSS
 (def main-css-location "/templates/main.css")
+
+(def site-title "Foobarly adventures")

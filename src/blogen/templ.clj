@@ -31,10 +31,14 @@
      :type "text/css"
      :href (with-depth depth main-css-location)}]))
 
+(defn make-title
+  [s]
+  (str s " - " site-title))
+
 (html/deftemplate post-template (from-template "post.html")
   [head-extra title content]
   [:head] (html/append head-extra)
-  [:title] (html/content title)
+  [:title] (html/content (make-title title))
   [:#content] (html/substitute content))
 
 ;; Actual interface to single posts
