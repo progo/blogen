@@ -72,10 +72,7 @@
   (let [posts (read-files)]
     (doseq [post posts]
       (spit (:path post)
-            (apply str
-             (templ/post-template (:title post) 
-                                  (:content post)))))
-
+            (apply str (templ/single-post post))))
     ;; then the RSS feeds, tag indices, front page, customized index
     ;; files
     ))

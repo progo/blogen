@@ -11,3 +11,6 @@
 
 ;; Set of full path patterns that are to be excluded
 (def excludes #{#"^.*/templates/.*html$"})
+
+;; Relative location of the main CSS
+(def main-css-location "/templates/main.css")
