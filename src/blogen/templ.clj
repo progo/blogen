@@ -35,10 +35,25 @@
   [s]
   (str s " - " (:site-title @config)))
 
-(html/deftemplate post-template (from-template "post.html")
-  [head-extra title content]
-  [:head] (html/append head-extra)
+(html/defsnippet footer-template (from-template "_footer.html") [html/root]
+  [word-count]
+  [:#word-count] (html/content word-count))
+
+(html/defsnippet header-template (from-template "_header.html") [html/root]
+  [site-title]
+  [:#site-title] (html/content site-title))
+
+(html/defsnippet head-template (from-template "_head.html") [:head]
+  [title style-link]
   [:title] (html/content (make-title title))
+  [:link] (html/substitute style-link)
+  )
+
+(html/deftemplate post-template (from-template "post.html")
+  [head header footer content]
+  [:head] (html/content head)
+  [:#header] (html/content header)
+  [:#footer] (html/content footer)
   [:#content] (html/substitute content))
 
 ;; Actual interface to single posts
@@ -46,6 +61,8 @@
   ""
   [post]
   (post-template
-   (link-to-css (:path-depth post))
-   (:title post)
+   (head-template (:title post)
+                  (link-to-css (:path-depth post)))
+   (header-template (:site-title @config))
+   (footer-template (str (:word-count post)))
    (:content post)))
