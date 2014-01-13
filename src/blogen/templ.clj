@@ -2,6 +2,7 @@
   (:use
    [blogen.config])
   (:require
+   [clj-time.format]
    [net.cgrand.enlive-html :as html]))
 
 (defn- streamify 
@@ -23,6 +24,24 @@
   (str (apply str (repeat depth "../"))
        s))
 
+(defn- format-date-with-fmt
+  "Format a DateTime object to human readable string, using
+  `format-string'."
+  [format-string dt]
+  (clj-time.format/unparse
+   (clj-time.format/formatter format-string)
+   dt))
+
+(def format-date
+  "DateTime (just date) -> human readable"
+  (partial format-date-with-fmt
+           (:date-format @config)))
+
+(def format-datetime
+  "DateTime (date and time) -> human readable"
+  (partial format-date-with-fmt
+           (:datetime-format @config)))
+
 (defn link-to-css
   [depth]
   (html/html
@@ -35,34 +54,42 @@
   [s]
   (str s " - " (:site-title @config)))
 
+(defn build-tags
+  [tags]
+  (html/html
+   (for [t tags]
+     [:li (str t)])))
+
 (html/defsnippet footer-template (from-template "_footer.html") [html/root]
-  [word-count]
-  [:#word-count] (html/content word-count))
+  [post])
 
 (html/defsnippet header-template (from-template "_header.html") [html/root]
-  [site-title]
-  [:#site-title] (html/content site-title))
+  [post]
+  [:#site-title] (html/content (:site-title @config)))
 
 (html/defsnippet head-template (from-template "_head.html") [:head]
-  [title style-link]
-  [:title] (html/content (make-title title))
-  [:link] (html/substitute style-link)
-  )
+  [post]
+  [:title] (html/content (make-title (:title post)))
+  [:link] (html/substitute (link-to-css (:path-depth post))))
+
+(html/defsnippet sidebar-template (from-template "_sidebar.html") [html/root]
+  [post]
+  [:#post-created] (html/content (format-date (:created post)))
+  [:#tags] (html/content (build-tags (:tags post)))
+  [:#post-modified] (html/content (-> post
+                                      :history
+                                      first
+                                      :date
+                                      format-datetime)))
 
 (html/deftemplate post-template (from-template "post.html")
-  [head header footer content]
-  [:head] (html/content head)
-  [:#header] (html/content header)
-  [:#footer] (html/content footer)
-  [:#content] (html/substitute content))
-
-;; Actual interface to single posts
-(defn single-post
-  ""
   [post]
-  (post-template
-   (head-template (:title post)
-                  (link-to-css (:path-depth post)))
-   (header-template (:site-title @config))
-   (footer-template (str (:word-count post)))
-   (:content post)))
+  [:head] (html/content (head-template post))
+  [:#header] (html/content (header-template post))
+  [:#sidebar] (html/content (sidebar-template post))
+  [:#footer] (html/content (footer-template post))
+  [:#content] (html/substitute (:content post)))
+
+(defn single-post
+  [post]
+  (post-template post))

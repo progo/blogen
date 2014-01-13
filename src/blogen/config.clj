@@ -14,6 +14,9 @@
    :excludes #{#"^.*/templates/.*html$"}
    ;; Relative location of the main CSS
    :main-css-location "/templates/main.css"
+   ;; human readable datetime formats to use
+   :date-format "dd.MM.YYYY"
+   :datetime-format "dd.MM.YYYY HH:mm"
    ;; A couple of self-describing options
    :site-title "Foobarly adventures"
    })

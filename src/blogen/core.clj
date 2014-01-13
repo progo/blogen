@@ -69,7 +69,7 @@
 (defn transform!
   "Go through all passes, starting afresh and producing the final result."
   []
-  (let [posts (read-files)]
+  (let [posts (analysis/analyze-posts (read-files))]
     (doseq [post posts]
       (spit (:path post)
             (apply str (templ/single-post post))))
