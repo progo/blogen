@@ -60,19 +60,19 @@
    (for [t tags]
      [:li (str t)])))
 
-(html/defsnippet footer-template (from-template "_footer.html") [:#footer]
+(html/defsnippet footer-template (from-template "post.html") [:#footer]
   [post])
 
-(html/defsnippet header-template (from-template "_header.html") [:#header]
+(html/defsnippet header-template (from-template "post.html") [:#header]
   [post]
   [:#site-title] (html/content (:site-title @config)))
 
-(html/defsnippet head-template (from-template "_head.html") [:head]
+(html/defsnippet head-template (from-template "post.html") [:head]
   [post]
   [:title] (html/content (make-title (:title post)))
   [:link] (html/substitute (link-to-css (:path-depth post))))
 
-(html/defsnippet sidebar-template (from-template "_sidebar.html") [:#sidebar]
+(html/defsnippet sidebar-template (from-template "post.html") [:#sidebar]
   [post]
   [:#post-created] (html/content (format-date (:created post)))
   [:#tags] (html/content (build-tags (:tags post)))
