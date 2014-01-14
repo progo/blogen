@@ -60,10 +60,10 @@
    (for [t tags]
      [:li (str t)])))
 
-(html/defsnippet footer-template (from-template "_footer.html") [html/root]
+(html/defsnippet footer-template (from-template "_footer.html") [:#footer]
   [post])
 
-(html/defsnippet header-template (from-template "_header.html") [html/root]
+(html/defsnippet header-template (from-template "_header.html") [:#header]
   [post]
   [:#site-title] (html/content (:site-title @config)))
 
@@ -72,7 +72,7 @@
   [:title] (html/content (make-title (:title post)))
   [:link] (html/substitute (link-to-css (:path-depth post))))
 
-(html/defsnippet sidebar-template (from-template "_sidebar.html") [html/root]
+(html/defsnippet sidebar-template (from-template "_sidebar.html") [:#sidebar]
   [post]
   [:#post-created] (html/content (format-date (:created post)))
   [:#tags] (html/content (build-tags (:tags post)))
@@ -84,10 +84,10 @@
 
 (html/deftemplate post-template (from-template "post.html")
   [post]
-  [:head] (html/content (head-template post))
-  [:#header] (html/content (header-template post))
-  [:#sidebar] (html/content (sidebar-template post))
-  [:#footer] (html/content (footer-template post))
+  [:head] (html/substitute (head-template post))
+  [:#header] (html/substitute (header-template post))
+  [:#sidebar] (html/substitute (sidebar-template post))
+  [:#footer] (html/substitute (footer-template post))
   [:#content] (html/substitute (:content post)))
 
 (defn single-post
