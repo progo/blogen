@@ -89,9 +89,10 @@
     (doseq [post posts]
       (spit (:path post)
             (apply str (templ/single-post post))))
-    ;; then the RSS feeds, tag indices, front page, customized index
-    ;; files
-    ))
+    ;; TODO then the RSS feeds, tag indices, customized index files...
+    (spit (str (:blog-dir @config)
+               "index.html")
+          (apply str (templ/index-page posts)))))
 
 ;; Debug toolsies
 (let [dbg-strip-big-bits

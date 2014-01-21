@@ -90,6 +90,29 @@
   [:#footer] (html/substitute (footer-template post))
   [:#content] (html/substitute (:content post)))
 
+(html/deftemplate index-template (from-template "index.html")
+  [posts]
+  [:title] (html/append (make-title ""))
+  [:link] (html/substitute (link-to-css 0))
+  [:#header] (html/substitute (header-template nil))
+  [:#posts :li] (html/clone-for
+                 [p posts]
+                 [:.post-link] (html/set-attr :href (:relative-path p))
+                 [:.post-name] (html/content (:title p))))
+
+
+
+
 (defn single-post
+  "Build a complete page from given post."
   [post]
   (post-template post))
+
+(defn index-page
+  "Create an index page from posts."
+  [posts]
+  (index-template posts))
+
+(defn tag-page
+  [posts tag]
+  )
