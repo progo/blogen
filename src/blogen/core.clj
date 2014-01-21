@@ -43,12 +43,19 @@
              (subs file (count (:blog-dir @config))))
         (.replaceFirst "\\.html$" ".org"))))
 
+;;; TODO maybe have depth taken into account
+(defn relative-path
+  "Predict a relative path for an absolute path."
+  [path]
+  (-> (subs path (count (:blog-dir @config)))
+      (.replaceFirst "^/" "")))
+
 (defn file-depth
   "Calculate the directory depth of the given path. Assumes absolute
   paths that begin with config var `blog-dir'."
   [path]
-  (-> (subs path (count (:blog-dir @config)))
-      (.replaceFirst "^/" "")
+  (-> path
+      relative-path
       seq
       ((partial filter #{\/}))
       count))
@@ -63,6 +70,7 @@
        (post/all-info post)
        {:history (versions/history original)}
        {:path-depth (file-depth file)
+        :relative-path (relative-path file)
         :original-path original
         :path file}))))
 
