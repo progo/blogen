@@ -12,6 +12,9 @@
    :template-dir "/home/progo/dokumentit/blog/templates/"
    ;; Set of full path patterns that are to be excluded
    :excludes #{#"^.*/templates/.*html$"}
+   ;; A set of full path patterns of directories-to-be-excluded
+   :dir-excludes #{#"^.+/ltxpng$"
+                   #"^.+/templates$"}
    ;; Relative location of the main CSS
    :main-css-location "/templates/main.css"
    ;; human readable datetime formats to use

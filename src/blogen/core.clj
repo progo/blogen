@@ -15,16 +15,24 @@
   [path]
   (html/html-resource (java.io.FileReader. path)))
 
-(defn collect-files
-  "Collect all files to be transformed. Return a seq of
-  absolute-pathed filenames."
-  [blog-dir excludes]
-  (let [excluded? (fn [path]
-                    (some
-                     (fn [exc] (re-matches exc path)) excludes))]
-    (->> (fs/find-files blog-dir #".*\.html$")
-         (map (memfn getPath))
-         (filter (complement excluded?)))))
+(letfn [(collect' [root-dir excludes init-pattern type-predicate]
+          "Collect items by given search parameters. Return a seq of
+          absolute-pathed filenames."
+          (let [excluded? (fn [path]
+                            (some
+                             (fn [exc] (re-matches exc path)) excludes))]
+            (->> (fs/find-files root-dir init-pattern)
+                 (map (memfn getPath))
+                 (filter type-predicate)
+                 (filter (complement excluded?)))))]
+  (defn search-files
+    "Collect all HTML files to convert."
+    [root-dir excludes]
+    (collect' root-dir excludes #".*\.html$" fs/file?))
+  (defn search-directories
+    "Collect all directories."
+    [root-dir excludes]
+    (collect' root-dir excludes #".*" fs/directory?)))
 
 (defn original-file-location
   "Given output HTML file, try to determine the location of original
@@ -62,7 +70,7 @@
   "First pass. Collect all files and their data in one data structure.
   These are the posts within their own contexts."
   []
-  (-> (collect-files (:blog-dir @config) (:excludes @config))
+  (-> (search-files (:blog-dir @config) (:excludes @config))
       collect-data
       ((partial filter post/ready-to-publish?))))
 
