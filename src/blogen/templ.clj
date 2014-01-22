@@ -82,12 +82,20 @@
                                       :date
                                       format-datetime)))
 
+(html/defsnippet disqus-template (from-template "disqus.html") [:#disqus]
+  [uid]
+  [:script] (html/transform-content
+             (html/replace-vars
+              {:sb-shortname (:disqus-shortname @config)
+               :sb-identifier (str uid)})))
+
 (html/deftemplate post-template (from-template "post.html")
   [post]
   [:head] (html/substitute (head-template post))
   [:#header] (html/substitute (header-template post))
   [:#sidebar] (html/substitute (sidebar-template post))
   [:#footer] (html/substitute (footer-template post))
+  [:#comments] (html/content (disqus-template (:uid post)))
   [:#content] (html/substitute (:content post)))
 
 (html/deftemplate index-template (from-template "index.html")
