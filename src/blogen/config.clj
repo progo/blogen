@@ -15,8 +15,8 @@
    ;; A set of full path patterns of directories-to-be-excluded
    :dir-excludes #{#"^.+/ltxpng$"
                    #"^.+/templates$"}
-   ;; Relative location of the main CSS
-   :main-css-location "templates/main.css"
+   ;; Relative location of static assets (css, js)
+   :assets-location "templates/"
    ;; Identifier for Disqus
    :disqus-shortname "progim"
    ;; human readable datetime formats to use
@@ -24,6 +24,7 @@
    :datetime-format "dd.MM.YYYY HH:mm"
    ;; A couple of self-describing options
    :site-title "Foobarly adventures"
+   :subtitle ""
    })
 
 (defn- read-config-from-file

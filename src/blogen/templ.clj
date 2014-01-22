@@ -48,7 +48,8 @@
    [:link
     {:rel "stylesheet"
      :type "text/css"
-     :href (with-depth depth (:main-css-location @config))}]))
+     :href (with-depth depth (str (:assets-location @config)
+                                  "main.css"))}]))
 
 (defn make-title
   [s]
