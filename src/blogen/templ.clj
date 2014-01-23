@@ -2,6 +2,7 @@
   (:use
    [blogen.config])
   (:require
+   blogen.sort
    [clj-time.format]
    [net.cgrand.enlive-html :as html]))
 
@@ -73,15 +74,16 @@
   [:title] (html/content (make-title (:title post)))
   [:link] (html/substitute (link-to-css (:path-depth post))))
 
+(defn post-last-modified
+  "Return the last modification date, minor or major."
+  [post]
+  (-> post :history first :date))
+
 (html/defsnippet sidebar-template (from-template "post.html") [:#sidebar]
   [post]
   [:#post-created] (html/content (format-date (:created post)))
   [:#tags] (html/content (build-tags (:tags post)))
-  [:#post-modified] (html/content (-> post
-                                      :history
-                                      first
-                                      :date
-                                      format-datetime)))
+  [:#post-modified] (html/content (format-date (post-last-modified post))))
 
 (html/defsnippet disqus-template (from-template "disqus.html") [:#disqus]
   [uid]
@@ -99,15 +101,30 @@
   [:#comments] (html/content (disqus-template (:uid post)))
   [:#content] (html/substitute (:content post)))
 
+(defn new-post?
+  "Check post's revisions to see if the post is all new or an update."
+  [post]
+  (->> post
+       :history
+       (filter :major?)
+       count
+       zero?))
+
 (html/deftemplate index-template (from-template "index.html")
   [posts]
   [:title] (html/append (make-title ""))
   [:link] (html/substitute (link-to-css 0))
   [:#header] (html/substitute (header-template nil))
-  [:#posts :li] (html/clone-for
-                 [p posts]
-                 [:.post-link] (html/set-attr :href (:relative-path p))
-                 [:.post-name] (html/content (:title p))))
+  [:#newest-changes :ul :li]
+  (html/clone-for
+   [p (take 5 (sort blogen.sort/by-latest-major-revision posts))]
+   [:.post-link] (html/set-attr :href (:relative-path p))
+   [:.post-taste] (html/content (:taste p))
+   [:.post-rev-date] (html/content (format-date (post-last-modified p)))
+   [:.post-new-or-update] (html/content (if (new-post? p)
+                                          ""
+                                          "U"))
+   [:.post-name] (html/content (:title p))))
 
 
 
