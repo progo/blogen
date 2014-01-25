@@ -5,7 +5,7 @@
 
 (def ^:private default-config
   {;; org output & our primary input
-   :blog-dir "/home/progo/temp/blog/"
+   :out-dir "/home/progo/temp/blog/"
    ;; Where the original material lies
    :original-dir "/home/progo/dokumentit/blog/"
    ;; HTML/enlive templates

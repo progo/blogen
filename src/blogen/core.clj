@@ -38,16 +38,16 @@
   "Given output HTML file, try to determine the location of original
   .org file. Relies on absolute paths that are found in config."
   [file]
-  (if (.startsWith file (:blog-dir @config))
+  (if (.startsWith file (:out-dir @config))
     (-> (str (:original-dir @config)
-             (subs file (count (:blog-dir @config))))
+             (subs file (count (:out-dir @config))))
         (.replaceFirst "\\.html$" ".org"))))
 
 ;;; TODO maybe have depth taken into account
 (defn relative-path
   "Predict a relative path for an absolute path."
   [path]
-  (-> (subs path (count (:blog-dir @config)))
+  (-> (subs path (count (:out-dir @config)))
       (.replaceFirst "^/" "")))
 
 (defn file-depth
@@ -78,7 +78,7 @@
   "First pass. Collect all files and their data in one data structure.
   These are the posts within their own contexts."
   []
-  (-> (search-files (:blog-dir @config) (:excludes @config))
+  (-> (search-files (:out-dir @config) (:excludes @config))
       collect-data
       ((partial filter post/ready-to-publish?))))
 
@@ -92,12 +92,12 @@
     ;; TODO then the RSS feeds, tag indices, customized index files...
     ;; Tags
     (doseq [tag (into #{} (mapcat :tags posts))]
-      (spit (str (:blog-dir @config)
+      (spit (str (:out-dir @config)
                  (:tags-dir @config)
                  tag ".html")
             (apply str (templ/tag-page tag posts))))
     ;; Front page
-    (spit (str (:blog-dir @config)
+    (spit (str (:out-dir @config)
                "index.html")
           (apply str (templ/index-page posts)))))
 
