@@ -136,6 +136,14 @@
    ]
   )
 
+(defn has-tag?
+  "Create a predicate checking for certain tag."
+  [tag]
+  (fn [post]
+    (->> post
+         :tags
+         (some #{tag}))))
+
 ;; Tag pages
 (html/defsnippets (from-template "tag.html")
   [tag-head-template [:head]
@@ -145,7 +153,11 @@
   [tag-content-template [:#main]
    [tag posts]
    [:.tag-name] (html/content tag)
-  ])
+   [:#article-list :ul :li]
+   (html/clone-for
+    [p (filter (has-tag? tag) posts)]
+    [:.post-name] (html/content (:title p))
+    )])
 
 (defn single-post
   "Build a complete page from given post."
