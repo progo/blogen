@@ -90,6 +90,13 @@
       (spit (:path post)
             (apply str (templ/single-post post))))
     ;; TODO then the RSS feeds, tag indices, customized index files...
+    ;; Tags
+    (doseq [tag (into #{} (mapcat :tags posts))]
+      (spit (str (:blog-dir @config)
+                 (:tags-dir @config)
+                 tag ".html")
+            (apply str (templ/tag-page tag posts))))
+    ;; Front page
     (spit (str (:blog-dir @config)
                "index.html")
           (apply str (templ/index-page posts)))))

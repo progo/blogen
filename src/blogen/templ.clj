@@ -121,13 +121,14 @@
    [:.post-link] (html/set-attr :href (:relative-path p))
    [:.post-taste] (html/content (:taste p))
    [:.post-rev-date] (html/content (format-date (post-last-modified p)))
-   [:.post-new-or-update] (html/content (if (new-post? p)
-                                          ""
-                                          "U"))
+   [:.post-is-updated] #(when (not (new-post? p)) %)
+   [:.post-is-new] #(when (new-post? p) %)
    [:.post-name] (html/content (:title p))))
 
-
-
+(html/deftemplate tag-page-template (from-template "tag.html")
+  [tag posts]
+  [:.tag-name] (html/content tag)
+  )
 
 (defn single-post
   "Build a complete page from given post."
@@ -140,5 +141,6 @@
   (index-template posts))
 
 (defn tag-page
-  [posts tag]
-  )
+  "Render a tag page for this given tag."
+  [tag posts]
+  (tag-page-template tag posts))

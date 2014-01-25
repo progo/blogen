@@ -17,6 +17,8 @@
                    #"^.+/templates$"}
    ;; Relative location of static assets (css, js)
    :assets-location "templates/"
+   ;; tags dir
+   :tags-dir "tags/"
    ;; Identifier for Disqus
    :disqus-shortname "progim"
    ;; human readable datetime formats to use
