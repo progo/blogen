@@ -125,6 +125,25 @@
        count
        zero?))
 
+;;;; Post listings
+
+;; Feel free to stuff this with different crap
+(defn transform-post-list-item
+  [p]
+  (html/transformation
+   [:.post-link]
+   (html/set-attr :href (:relative-path p))
+   [:.post-taste]
+   (html/content (:taste p))
+   [:.post-rev-date]
+   (html/content (format-date (post-last-modified p)))
+   [:.post-is-updated]
+   #(when (not (new-post? p)) %)
+   [:.post-is-new]
+   #(when (new-post? p) %)
+   [:.post-name]
+   (html/content (:title p))))
+
 ;; Index page
 (html/defsnippets (from-template "index.html")
   [index-head-template [:head]
@@ -136,14 +155,7 @@
    [:#newest-changes :ul :li]
    (html/clone-for
     [p (take 5 (sort blogen.sort/by-latest-major-revision posts))]
-    [:.post-link] (html/set-attr :href (:relative-path p))
-    [:.post-taste] (html/content (:taste p))
-    [:.post-rev-date] (html/content (format-date (post-last-modified p)))
-    [:.post-is-updated] #(when (not (new-post? p)) %)
-    [:.post-is-new] #(when (new-post? p) %)
-    [:.post-name] (html/content (:title p)))
-   ]
-  )
+    (transform-post-list-item p))])
 
 ;; Tag pages
 (html/defsnippets (from-template "tag.html")
@@ -157,8 +169,7 @@
    [:#article-list :ul :li]
    (html/clone-for
     [p (filter (has-tag? tag) posts)]
-    [:.post-name] (html/content (:title p))
-    )])
+    (transform-post-list-item p))])
 
 (defn single-post
   "Build a complete page from given post."
