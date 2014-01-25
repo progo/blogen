@@ -62,28 +62,10 @@
    (for [t tags]
      [:li (str t)])))
 
-(html/defsnippet footer-template (from-template "post.html") [:#footer]
-  [post])
-
-(html/defsnippet header-template (from-template "post.html") [:#header]
-  [post]
-  [:#site-title] (html/content (:site-title @config)))
-
-(html/defsnippet head-template (from-template "post.html") [:head]
-  [post]
-  [:title] (html/content (make-title (:title post)))
-  [:link] (html/substitute (link-to-css (:path-depth post))))
-
 (defn post-last-modified
   "Return the last modification date, minor or major."
   [post]
   (-> post :history first :date))
-
-(html/defsnippet sidebar-template (from-template "post.html") [:#sidebar]
-  [post]
-  [:#post-created] (html/content (format-date (:created post)))
-  [:#tags] (html/content (build-tags (:tags post)))
-  [:#post-modified] (html/content (format-date (post-last-modified post))))
 
 (html/defsnippet disqus-template (from-template "disqus.html") [:#disqus]
   [uid]
@@ -92,14 +74,38 @@
               {:sb-shortname (:disqus-shortname @config)
                :sb-identifier (str uid)})))
 
-(html/deftemplate post-template (from-template "post.html")
-  [post]
-  [:head] (html/substitute (head-template post))
-  [:#header] (html/substitute (header-template post))
-  [:#sidebar] (html/substitute (sidebar-template post))
-  [:#footer] (html/substitute (footer-template post))
-  [:#comments] (html/content (disqus-template (:uid post)))
-  [:#content] (html/substitute (:content post)))
+;;; All pages that wish to look uniform must apply thru this.
+(html/deftemplate from-master (from-template "master.html")
+  [{:keys [head header footer sidebar main]}]
+  [:head] (html/append (map :content head))
+  [:#sidebar] (html/substitute sidebar)
+  [:#main] (html/substitute main)
+  [:#site-title] (html/content (:site-title @config))
+  ;; [:#header] header
+  ;; [:#footer] footer
+  )
+
+;; Single post.
+(html/defsnippets (from-template "post.html")
+  [post-content-template [:#main]
+   [post]
+   [:#comments] (html/content (disqus-template (:uid post)))
+   [:#content] (html/substitute (:content post))
+   ]
+  [post-sidebar-template [:#sidebar]
+   [post]
+   [:#post-created] (html/content
+                     (format-date (:created post)))
+   [:#tags] (html/content
+             (build-tags (:tags post)))
+   [:#post-modified] (html/content
+                      (format-date (post-last-modified post)))
+   ]
+  [post-head-template [:head]
+   [post]
+   [:title] (html/content (make-title (:title post)))
+   [:link] (html/substitute (link-to-css (:path-depth post)))]
+   )
 
 (defn new-post?
   "Check post's revisions to see if the post is all new or an update."
@@ -110,37 +116,56 @@
        count
        zero?))
 
-(html/deftemplate index-template (from-template "index.html")
-  [posts]
-  [:title] (html/append (make-title ""))
-  [:link] (html/substitute (link-to-css 0))
-  [:#header] (html/substitute (header-template nil))
-  [:#newest-changes :ul :li]
-  (html/clone-for
-   [p (take 5 (sort blogen.sort/by-latest-major-revision posts))]
-   [:.post-link] (html/set-attr :href (:relative-path p))
-   [:.post-taste] (html/content (:taste p))
-   [:.post-rev-date] (html/content (format-date (post-last-modified p)))
-   [:.post-is-updated] #(when (not (new-post? p)) %)
-   [:.post-is-new] #(when (new-post? p) %)
-   [:.post-name] (html/content (:title p))))
-
-(html/deftemplate tag-page-template (from-template "tag.html")
-  [tag posts]
-  [:.tag-name] (html/content tag)
+;; Index page
+(html/defsnippets (from-template "index.html")
+  [index-head-template [:head]
+   [posts]
+   [:title] (html/append (make-title ""))
+   [:link] (html/substitute (link-to-css 0))]
+  [index-content-template [:#main]
+   [posts]
+   [:#newest-changes :ul :li]
+   (html/clone-for
+    [p (take 5 (sort blogen.sort/by-latest-major-revision posts))]
+    [:.post-link] (html/set-attr :href (:relative-path p))
+    [:.post-taste] (html/content (:taste p))
+    [:.post-rev-date] (html/content (format-date (post-last-modified p)))
+    [:.post-is-updated] #(when (not (new-post? p)) %)
+    [:.post-is-new] #(when (new-post? p) %)
+    [:.post-name] (html/content (:title p)))
+   ]
   )
+
+;; Tag pages
+(html/defsnippets (from-template "tag.html")
+  [tag-head-template [:head]
+   [tag posts]
+   [:title] (html/append (make-title ""))
+   [:link] (html/substitute (link-to-css 1))]
+  [tag-content-template [:#main]
+   [tag posts]
+   [:.tag-name] (html/content tag)
+  ])
 
 (defn single-post
   "Build a complete page from given post."
   [post]
-  (post-template post))
+  (from-master
+   {:head (post-head-template post)
+    :sidebar (post-sidebar-template post)
+    :main (post-content-template post)
+    }))
 
 (defn index-page
   "Create an index page from posts."
   [posts]
-  (index-template posts))
+  (from-master
+   {:main (index-content-template posts)
+    :head (index-head-template posts)}))
 
 (defn tag-page
   "Render a tag page for this given tag."
   [tag posts]
-  (tag-page-template tag posts))
+  (from-master
+   {:head (tag-head-template tag posts)
+    :main (tag-content-template tag posts)}))
