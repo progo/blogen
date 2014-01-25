@@ -54,13 +54,25 @@
 
 (defn make-title
   [s]
-  (str s " - " (:site-title @config)))
+  (str s " — " (:site-title @config)))
+
+
+;;; Helpful tag utils
 
 (defn build-tags
+  "Build an HTML snippet out of tags."
   [tags]
   (html/html
    (for [t tags]
      [:li (str t)])))
+
+(defn has-tag?
+  "Create a predicate checking for certain tag."
+  [tag]
+  (fn [post]
+    (->> post
+         :tags
+         (some #{tag}))))
 
 (defn post-last-modified
   "Return the last modification date, minor or major."
@@ -90,8 +102,7 @@
   [post-content-template [:#main]
    [post]
    [:#comments] (html/content (disqus-template (:uid post)))
-   [:#content] (html/substitute (:content post))
-   ]
+   [:#content] (html/substitute (:content post))]
   [post-sidebar-template [:#sidebar]
    [post]
    [:#post-created] (html/content
@@ -99,13 +110,11 @@
    [:#tags] (html/content
              (build-tags (:tags post)))
    [:#post-modified] (html/content
-                      (format-date (post-last-modified post)))
-   ]
+                      (format-date (post-last-modified post)))]
   [post-head-template [:head]
    [post]
    [:title] (html/content (make-title (:title post)))
-   [:link] (html/substitute (link-to-css (:path-depth post)))]
-   )
+   [:link] (html/substitute (link-to-css (:path-depth post)))])
 
 (defn new-post?
   "Check post's revisions to see if the post is all new or an update."
@@ -135,14 +144,6 @@
     [:.post-name] (html/content (:title p)))
    ]
   )
-
-(defn has-tag?
-  "Create a predicate checking for certain tag."
-  [tag]
-  (fn [post]
-    (->> post
-         :tags
-         (some #{tag}))))
 
 ;; Tag pages
 (html/defsnippets (from-template "tag.html")
