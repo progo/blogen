@@ -51,12 +51,22 @@
 
 ;;; Helpful tag utils
 
+(defn tag-class
+  "Determine suitable tag class based on its usage"
+  [usage]
+  (str "tag-"
+       (cond
+        (<= 0 usage 2) 0
+        (<= 3 usage 5) 1
+        (<= 6 usage 9) 2
+        :else          3)))
+
 (defn build-tags
   "Build an HTML snippet out of tags."
-  [tags]
+  [tags all-tags]
   (html/html
    (for [t tags]
-     [:li
+     [:li {:class (tag-class (all-tags t 0))}
       [:a {:href
            (from-base-url (str (:tags-dir @config)
                                t ".html"))}
@@ -104,7 +114,7 @@
    [:#post-created] (html/content
                      (format-date (:created post)))
    [:#tags] (html/content
-             (build-tags (:tags post)))
+             (build-tags (:tags post) (:all-tags post)))
    [:#post-modified] (html/content
                       (format-date (post-last-modified post)))]
   [post-head-template [:head]
@@ -132,7 +142,7 @@
    [:.post-taste]
    (html/content (:taste p))
    [:.tag-list-oneline]
-   (html/content (build-tags (:tags p)))
+   (html/content (build-tags (:tags p) (:all-tags p)))
    [:.post-rev-date]
    (html/content (format-date (post-last-modified p)))
    [:.post-is-updated]
