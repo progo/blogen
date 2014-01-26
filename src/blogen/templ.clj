@@ -65,7 +65,7 @@
   "Build an HTML snippet out of tags."
   [tags all-tags]
   (html/html
-   (for [t tags]
+   (for [t (reverse (sort-by all-tags tags))]
      [:li {:class (tag-class (all-tags t 0))}
       [:a {:href
            (from-base-url (str (:tags-dir @config)
@@ -171,6 +171,11 @@
    [tag posts]
    [:title] (html/append (make-title ""))
    [:link] (html/substitute link-to-css)]
+  [tag-sidebar-template [:#sidebar]
+   [tag posts]
+   [:#all-tags-list] (html/content
+                      (let [all-tags (-> posts first :all-tags)]
+                        (build-tags (keys all-tags) all-tags)))]
   [tag-content-template [:#main]
    [tag posts]
    [:.tag-name] (html/content tag)
@@ -200,4 +205,5 @@
   [tag posts]
   (from-master
    {:head (tag-head-template tag posts)
+    :sidebar (tag-sidebar-template tag posts)
     :main (tag-content-template tag posts)}))
