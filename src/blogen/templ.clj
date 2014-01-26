@@ -6,24 +6,17 @@
    [clj-time.format]
    [net.cgrand.enlive-html :as html]))
 
-(defn- streamify 
-  [path]
-  (java.io.FileReader. path))
-(defn- with-template-dir
-  [filename]
-  (str (:template-dir @config) "/" filename))
 (defn- from-template
   "Take just a file name and produce a FileReader object for enlive to
   use."
   [template-name]
-  (streamify
-   (with-template-dir template-name)))
+  (java.io.FileReader.
+   (str (:template-dir @config) "/" template-name)))
 
-(defn with-depth
-  "Provide a relative path (presumably) with parent dirs."
-  [depth s]
-  (str (apply str (repeat depth "../"))
-       s))
+(defn from-base-url
+  "Build an absolute url."
+  [s]
+  (str (:base-url @config) s))
 
 (defn- format-date-with-fmt
   "Format a DateTime object to human readable string, using
@@ -43,14 +36,13 @@
   (partial format-date-with-fmt
            (:datetime-format @config)))
 
-(defn link-to-css
-  [depth]
+(def link-to-css
   (html/html
    [:link
     {:rel "stylesheet"
      :type "text/css"
-     :href (with-depth depth (str (:assets-location @config)
-                                  "main.css"))}]))
+     :href (from-base-url (str (:assets-location @config)
+                               "main.css"))}]))
 
 (defn make-title
   [s]
@@ -114,7 +106,7 @@
   [post-head-template [:head]
    [post]
    [:title] (html/content (make-title (:title post)))
-   [:link] (html/substitute (link-to-css (:path-depth post)))])
+   [:link] (html/substitute link-to-css)])
 
 (defn new-post?
   "Check post's revisions to see if the post is all new or an update."
@@ -132,9 +124,11 @@
   [p]
   (html/transformation
    [:.post-link]
-   (html/set-attr :href (:relative-path p))
+   (html/set-attr :href (from-base-url (:relative-path p)))
    [:.post-taste]
    (html/content (:taste p))
+   [:.tag-list-oneline]
+   (html/content (build-tags (:tags p)))
    [:.post-rev-date]
    (html/content (format-date (post-last-modified p)))
    [:.post-is-updated]
@@ -149,7 +143,7 @@
   [index-head-template [:head]
    [posts]
    [:title] (html/append (make-title ""))
-   [:link] (html/substitute (link-to-css 0))]
+   [:link] (html/substitute link-to-css)]
   [index-content-template [:#main]
    [posts]
    [:#newest-changes :ul :li]
@@ -162,7 +156,7 @@
   [tag-head-template [:head]
    [tag posts]
    [:title] (html/append (make-title ""))
-   [:link] (html/substitute (link-to-css 1))]
+   [:link] (html/substitute link-to-css)]
   [tag-content-template [:#main]
    [tag posts]
    [:.tag-name] (html/content tag)

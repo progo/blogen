@@ -8,6 +8,8 @@
    :out-dir "/home/progo/temp/blog/"
    ;; Where the original material lies
    :original-dir "/home/progo/dokumentit/blog/"
+   ;; The base url for results
+   :base-url "/"
    ;; HTML/enlive templates
    :template-dir "/home/progo/dokumentit/blog/templates/"
    ;; Set of full path patterns that are to be excluded
