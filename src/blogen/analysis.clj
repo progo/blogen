@@ -12,9 +12,8 @@
 ;; suggestions, todo:
 ;; - similar articles (by tag intersection and perhaps title exploding)
 
-(defn analyze-posts
-  "Given input seq of posts, collect and generalize data within the
-  context of all posts."
+(defn neighboring-posts
+  "Check and 'link' each post with their precedors and successors."
   [posts]
   (let [creation-order (vec (sort sort/by-creation-date posts))]
     (for [post posts]
@@ -24,3 +23,21 @@
                       (-> (get creation-order (dec post-index)) :path))
             (assoc-in [:order-created :prev]
                       (-> (get creation-order (inc post-index)) :path)))))))
+
+(defn tag-usages
+  "Chew tags of all posts into a map of tag-count."
+  [posts]
+  (let [all-tags (->> (mapcat :tags posts)
+                     sort
+                     (partition-by identity)
+                     (map (juxt first count))
+                     (into {}))]
+    (map #(assoc % :all-tags all-tags) posts)))
+
+(defn analyze-posts
+  "Given input seq of posts, collect and generalize data within the
+  context of all posts."
+  [posts]
+  (-> posts
+      neighboring-posts
+      tag-usages))
