@@ -56,7 +56,11 @@
   [tags]
   (html/html
    (for [t tags]
-     [:li (str t)])))
+     [:li
+      [:a {:href
+           (from-base-url (str (:tags-dir @config)
+                               t ".html"))}
+       (str t)]])))
 
 (defn has-tag?
   "Create a predicate checking for certain tag."
