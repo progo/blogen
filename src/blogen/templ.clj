@@ -148,6 +148,29 @@
    [:.post-name]
    (html/content (:title p))))
 
+
+(defn rss-feed
+  [feed-title posts]
+  (html/html
+   [:rss {:version "2.0"
+          :xmlns:atom "http://www.w3.org/2005/Atom"}
+    [:channel
+     ;; [:atom:link {:href ""
+     ;;              :rel "self"
+     ;;              :type "application/rss+xml"}]
+     [:title (str (:site-title @config) " [" feed-title "]")]
+     [:link (:base-url @config)]
+     [:description (:subtitle @config)]
+     (for [p (take 15 posts)]   ; TODO, take only posts w/ major revs (sort)
+       [:item
+        [:title (:title p)]
+        [:link (:path p)]       ; TODO
+        [:guid {:isPermaLink "false"} (:uid p)]
+        [:description (:title p)]
+        [:pubDate (clj-time.format/unparse
+                   (clj-time.format/formatters :rfc822)
+                   (utils/post-last-major-modified p))]])]]))
+
 ;; Index page
 (html/defsnippets (from-template "index.html")
   [index-head-template [:head]
