@@ -3,6 +3,7 @@
    [blogen.config])
   (:require
    blogen.sort
+   [blogen.utils :as utils]
    [clj-time.format]
    [net.cgrand.enlive-html :as html]))
 
@@ -80,11 +81,6 @@
          :tags
          (some #{tag}))))
 
-(defn post-last-modified
-  "Return the last modification date, minor or major."
-  [post]
-  (-> post :history first :date))
-
 (html/defsnippet disqus-template (from-template "disqus.html") [:#disqus]
   [uid]
   [:script] (html/transform-content
@@ -116,7 +112,7 @@
    [:#tags] (html/content
              (build-tags (:tags post) (:all-tags post)))
    [:#post-modified] (html/content
-                      (format-date (post-last-modified post)))]
+                      (format-date (utils/post-last-modified post)))]
   [post-head-template [:head]
    [post]
    [:title] (html/content (make-title (:title post)))
@@ -144,7 +140,7 @@
    [:.tag-list-oneline]
    (html/content (build-tags (:tags p) (:all-tags p)))
    [:.post-rev-date]
-   (html/content (format-date (post-last-modified p)))
+   (html/content (format-date (utils/post-last-modified p)))
    [:.post-is-updated]
    #(when (not (new-post? p)) %)
    [:.post-is-new]
