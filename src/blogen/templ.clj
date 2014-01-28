@@ -15,9 +15,14 @@
    (str (:template-dir @config) "/" template-name)))
 
 (defn from-base-url
-  "Build an absolute url."
+  "Build an absolute url that's relative by domain part."
   [s]
   (str (:base-url @config) s))
+
+(defn from-full-url
+  "Absolute url that's really absolute, with domain and all."
+  [s]
+  (str (:domain @config) s))
 
 (defn- format-date-with-fmt
   "Format a DateTime object to human readable string, using
@@ -68,9 +73,9 @@
   (html/html
    (for [t (reverse (sort-by all-tags tags))]
      [:li {:class (tag-class (all-tags t 0))}
-      [:a {:href
-           (from-base-url (str (:tags-dir @config)
-                               t ".html"))}
+      [:a {:href (from-base-url (str (:tags-dir @config)
+                                     t ".html"))
+           :class "tag-name"}
        (str t)]])))
 
 (defn has-tag?
@@ -127,6 +132,7 @@
        count
        zero?))
 
+
 ;;;; Post listings
 
 ;; Feel free to stuff this with different crap
@@ -148,28 +154,49 @@
    [:.post-name]
    (html/content (:title p))))
 
-
-(defn rss-feed
-  [feed-title posts]
+(defn rss-feed'
+  "Build an RSS feed in XML given feed title and a seq of posts."
+  [feed-title
+   ;feed-uri
+   posts]
   (html/html
    [:rss {:version "2.0"
           :xmlns:atom "http://www.w3.org/2005/Atom"}
     [:channel
-     ;; [:atom:link {:href ""
+     ;; [:atom:link {:href (or feed-uri "")
      ;;              :rel "self"
      ;;              :type "application/rss+xml"}]
      [:title (str (:site-title @config) " [" feed-title "]")]
-     [:link (:base-url @config)]
+     [:link (:domain @config)]
      [:description (:subtitle @config)]
-     (for [p (take 15 posts)]   ; TODO, take only posts w/ major revs (sort)
+     (for [p posts]
        [:item
-        [:title (:title p)]
-        [:link (:path p)]       ; TODO
+        [:title (str (:title p) " " (if (new-post? p)
+                                      "[NEW]"
+                                      "[UPDATE]"))]
+        [:link (from-full-url (:relative-path p))]
         [:guid {:isPermaLink "false"} (:uid p)]
-        [:description (:title p)]
+        [:description (html/text (first (:taste p)))]
         [:pubDate (clj-time.format/unparse
                    (clj-time.format/formatters :rfc822)
                    (utils/post-last-major-modified p))]])]]))
+
+(defn rss-feed
+  "Return newest or most recently majorly updated titles from seq of
+  posts."
+  [feed-title posts]
+  (->> posts
+       (sort blogen.sort/by-latest-major-revision)
+       (take 15)
+       (rss-feed' feed-title)
+       html/emit*))
+
+(defn rss-feed-for-tag
+  "build an RSS feed for this tag."
+  [tag posts]
+  (let [posts (filter (has-tag? tag) posts)]
+    (rss-feed (str "Tag " tag)
+              posts)))
 
 ;; Index page
 (html/defsnippets (from-template "index.html")
@@ -198,6 +225,7 @@
   [tag-content-template [:#main]
    [tag posts]
    [:.tag-name] (html/content tag)
+   [:a.tag-rss] (html/set-attr :href (str tag ".rss"))
    [:#article-list :ul :li]
    (html/clone-for
     [p (filter (has-tag? tag) posts)]

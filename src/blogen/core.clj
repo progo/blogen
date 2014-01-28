@@ -94,6 +94,10 @@
     (doseq [tag (into #{} (mapcat :tags posts))]
       (spit (str (:out-dir @config)
                  (:tags-dir @config)
+                 tag ".rss")
+            (apply str (templ/rss-feed-for-tag tag posts)))
+      (spit (str (:out-dir @config)
+                 (:tags-dir @config)
                  tag ".html")
             (apply str (templ/tag-page tag posts))))
     ;; Front page

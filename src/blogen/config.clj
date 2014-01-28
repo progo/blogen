@@ -10,6 +10,8 @@
    :original-dir "/home/progo/dokumentit/blog/"
    ;; The base url for results
    :base-url "/"
+   ;; Domain needed for RSS
+   :domain "http://fwwm.us/"
    ;; HTML/enlive templates
    :template-dir "/home/progo/dokumentit/blog/templates/"
    ;; Set of full path patterns that are to be excluded
