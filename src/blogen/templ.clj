@@ -204,6 +204,9 @@
    [posts]
    [:title] (html/append (make-title ""))
    [:link] (html/substitute link-to-css)]
+  [index-sidebar-template [:#sidebar]
+   [posts]
+   ]
   [index-content-template [:#main]
    [posts]
    [:#newest-changes :ul :li]
@@ -245,6 +248,7 @@
   [posts]
   (from-master
    {:main (index-content-template posts)
+    :sidebar (index-sidebar-template posts)
     :head (index-head-template posts)}))
 
 (defn tag-page
