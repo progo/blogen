@@ -42,14 +42,6 @@
   (partial format-date-with-fmt
            (:datetime-format @config)))
 
-(def link-to-css
-  (html/html
-   [:link
-    {:rel "stylesheet"
-     :type "text/css"
-     :href (from-base-url (str (:assets-location @config)
-                               "main.css"))}]))
-
 (defn make-title
   [s]
   (str s " — " (:site-title @config)))
@@ -120,8 +112,7 @@
                       (format-date (utils/post-last-modified post)))]
   [post-head-template [:head]
    [post]
-   [:title] (html/content (make-title (:title post)))
-   [:link] (html/substitute link-to-css)])
+   [:title] (html/content (make-title (:title post)))])
 
 (defn new-post?
   "Check post's revisions to see if the post is all new or an update."
@@ -147,6 +138,8 @@
    (html/content (build-tags (:tags p) (:all-tags p)))
    [:.post-rev-date]
    (html/content (format-date (utils/post-last-modified p)))
+   [:.post-created-date]
+   (html/content (format-date (:created p)))
    [:.post-is-updated]
    #(when (not (new-post? p)) %)
    [:.post-is-new]
@@ -208,8 +201,7 @@
 (html/defsnippets (from-template "index.html")
   [index-head-template [:head]
    [posts]
-   [:title] (html/append (make-title ""))
-   [:link] (html/substitute link-to-css)]
+   [:title] (html/append (make-title ""))]
   [index-sidebar-template [:#sidebar]
    [posts]
    ]
@@ -220,12 +212,26 @@
     [p (take 5 (sort blogen.sort/by-latest-major-revision posts))]
     (transform-post-list-item p))])
 
+;; A list of all posts.
+(html/defsnippets (from-template "all.html")
+  [allposts-main-template [:#main]
+   [posts]
+   [:ul.all-posts-list :li]
+   (html/clone-for
+    [p (sort blogen.sort/by-title posts)]
+    (transform-post-list-item p))]
+  [allposts-head-template [:head]
+   [posts]
+   [:title] (html/append (make-title ""))]
+  [allposts-sidebar-template [:#sidebar]
+   [posts]
+   ])
+
 ;; Tag pages
 (html/defsnippets (from-template "tag.html")
   [tag-head-template [:head]
    [tag posts]
-   [:title] (html/append (make-title ""))
-   [:link] (html/substitute link-to-css)]
+   [:title] (html/append (make-title ""))]
   [tag-sidebar-template [:#sidebar]
    [tag posts]
    [:#all-tags-list] (html/content
@@ -256,6 +262,14 @@
    {:main (index-content-template posts)
     :sidebar (index-sidebar-template posts)
     :head (index-head-template posts)}))
+
+(defn all-posts-page
+  "Create a list page of all posts."
+  [posts]
+  (from-master
+   {:main (allposts-main-template posts)
+    :sidebar (allposts-sidebar-template posts)
+    :head (allposts-head-template posts)}))
 
 (defn tag-page
   "Render a tag page for this given tag."

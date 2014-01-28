@@ -105,7 +105,11 @@
           (apply str (templ/rss-feed-for-all-posts posts)))
     (spit (str (:out-dir @config)
                "index.html")
-          (apply str (templ/index-page posts)))))
+          (apply str (templ/index-page posts)))
+    ;; All posts
+    (spit (str (:out-dir @config)
+               "all.html")
+          (apply str (templ/all-posts-page posts)))))
 
 ;; Debug toolsies
 (let [dbg-strip-big-bits

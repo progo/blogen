@@ -23,6 +23,14 @@
    utils/post-last-modified
    time/after?))
 
+(def by-title
+  "Sort by article title."
+  (make-post-comparator-func
+   (fn [p] (-> p
+               :title
+               .toLowerCase))
+   compare))
+
 (def by-latest-major-revision
   "Sort by most recent major modifications. Order by desc."
   (make-post-comparator-func
