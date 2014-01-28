@@ -166,7 +166,8 @@
      ;; [:atom:link {:href (or feed-uri "")
      ;;              :rel "self"
      ;;              :type "application/rss+xml"}]
-     [:title (str (:site-title @config) " [" feed-title "]")]
+     [:title (str (:site-title @config) (when (seq feed-title)
+                                          " [" feed-title "]"))]
      [:link (:domain @config)]
      [:description (:subtitle @config)]
      (for [p posts]
@@ -197,6 +198,11 @@
   (let [posts (filter (has-tag? tag) posts)]
     (rss-feed (str "Tag " tag)
               posts)))
+
+(defn rss-feed-for-all-posts
+  "build an RSS feed for all posts (sorted by major revisions)"
+  [posts]
+  (rss-feed "" posts))
 
 ;; Index page
 (html/defsnippets (from-template "index.html")

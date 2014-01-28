@@ -89,7 +89,6 @@
     (doseq [post posts]
       (spit (:path post)
             (apply str (templ/single-post post))))
-    ;; TODO then the RSS feeds, tag indices, customized index files...
     ;; Tags
     (doseq [tag (into #{} (mapcat :tags posts))]
       (spit (str (:out-dir @config)
@@ -100,7 +99,10 @@
                  (:tags-dir @config)
                  tag ".html")
             (apply str (templ/tag-page tag posts))))
-    ;; Front page
+    ;; Front page matter
+    (spit (str (:out-dir @config)
+               "index.rss")
+          (apply str (templ/rss-feed-for-all-posts posts)))
     (spit (str (:out-dir @config)
                "index.html")
           (apply str (templ/index-page posts)))))
