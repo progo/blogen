@@ -177,7 +177,7 @@
                                       "[UPDATE]"))]
         [:link (from-full-url (:relative-path p))]
         [:guid {:isPermaLink "false"} (:uid p)]
-        [:description (html/text (first (:taste p)))]
+        [:description (apply str (map html/text (:taste p)))]
         [:pubDate (clj-time.format/unparse
                    (clj-time.format/formatters :rfc822)
                    (utils/post-last-major-modified p))]])]]))
