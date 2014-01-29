@@ -2,6 +2,7 @@
   (:use
    [blogen.config])
   (:require
+   [taoensso.timbre :as timbre :refer [log info debug]]
    [fs.core :as fs]
    [blogen.analysis :as analysis]
    [blogen.sort :as sort]
@@ -86,11 +87,15 @@
 (defn transform!
   "Go through all passes, starting afresh and producing the final result."
   []
-  (let [posts (analysis/analyze-posts (read-files))]
+  (let [_ (info "Reading the files...")
+        posts (read-files)
+        _ (info "Doing analysis on them...")
+        posts (analysis/analyze-posts posts)]
+    (info "Creating single posts...")
     (doseq [post posts]
       (spit (:path post)
             (apply str (templ/single-post post))))
-    ;; Tags
+    (info "Writing tags...")
     (let [tags-dir (str (:out-dir @config)
                         (:tags-dir @config))]
       (fs/mkdir tags-dir)
@@ -99,17 +104,18 @@
               (apply str (templ/rss-feed-for-tag tag posts)))
         (spit (str tags-dir tag ".html")
               (apply str (templ/tag-page tag posts)))))
-    ;; Front page matter
+    (info "Writing front page...")
     (spit (str (:out-dir @config)
                "index.rss")
           (apply str (templ/rss-feed-for-all-posts posts)))
     (spit (str (:out-dir @config)
                "index.html")
           (apply str (templ/index-page posts)))
-    ;; All posts
+    (info "Writing post listings...")
     (spit (str (:out-dir @config)
                "all.html")
-          (apply str (templ/all-posts-page posts)))))
+          (apply str (templ/all-posts-page posts)))
+    (info "All done!")))
 
 (defn -main
   [& args]
