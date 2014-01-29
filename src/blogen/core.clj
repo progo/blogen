@@ -90,15 +90,14 @@
       (spit (:path post)
             (apply str (templ/single-post post))))
     ;; Tags
-    (doseq [tag (into #{} (mapcat :tags posts))]
-      (spit (str (:out-dir @config)
-                 (:tags-dir @config)
-                 tag ".rss")
-            (apply str (templ/rss-feed-for-tag tag posts)))
-      (spit (str (:out-dir @config)
-                 (:tags-dir @config)
-                 tag ".html")
-            (apply str (templ/tag-page tag posts))))
+    (let [tags-dir (str (:out-dir @config)
+                        (:tags-dir @config))]
+      (fs/mkdir tags-dir)
+      (doseq [tag (into #{} (mapcat :tags posts))]
+        (spit (str tags-dir tag ".rss")
+              (apply str (templ/rss-feed-for-tag tag posts)))
+        (spit (str tags-dir tag ".html")
+              (apply str (templ/tag-page tag posts)))))
     ;; Front page matter
     (spit (str (:out-dir @config)
                "index.rss")
