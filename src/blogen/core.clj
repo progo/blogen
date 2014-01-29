@@ -9,7 +9,8 @@
    [blogen.templ :as templ]
    [blogen.versions :as versions]
    [net.cgrand.tagsoup :as enlive-ts]
-   [net.cgrand.enlive-html :as html]))
+   [net.cgrand.enlive-html :as html])
+  (:gen-class))
 
 (defn read-html-file
   [path]
@@ -109,6 +110,10 @@
     (spit (str (:out-dir @config)
                "all.html")
           (apply str (templ/all-posts-page posts)))))
+
+(defn -main
+  [& args]
+  (transform!))
 
 ;; Debug toolsies
 (let [dbg-strip-big-bits
