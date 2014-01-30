@@ -115,14 +115,24 @@
    [:title] (html/content (make-title (:title post)))])
 
 (defn new-post?
-  "Check post's revisions to see if the post is all new or an update."
+  "Check post's revisions to see if the post is all new or has updates."
   [post]
-  (->> post
-       :history
-       (filter :major?)
-       count
-       zero?))
-
+  (let [revs (mapv :major? (:history post))
+        first-rev (last revs)
+        major-count (count (filter identity revs))]
+    (cond
+     (= 1 (count revs))
+     true
+     (and first-rev
+          (== major-count 1))
+     true
+     (and (not first-rev)
+          (== major-count 1))
+     false
+     (> major-count 1)
+     false
+     :else
+     false)))
 
 ;;;; Post listings
 
