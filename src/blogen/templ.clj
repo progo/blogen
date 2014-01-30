@@ -256,6 +256,16 @@
     [p (filter (has-tag? tag) posts)]
     (transform-post-list-item p))])
 
+;; 404 page. Shows well that we could use a little abstraction over
+;; here.
+(html/defsnippets (from-template "404.html")
+  [nf-head-template [:head]
+   [posts]]
+  [nf-sidebar-template [:#sidebar]
+   [posts]]
+  [nf-content-template [:#main]
+   [posts]])
+
 (defn single-post
   "Build a complete page from given post."
   [post]
@@ -288,3 +298,11 @@
    {:head (tag-head-template tag posts)
     :sidebar (tag-sidebar-template tag posts)
     :main (tag-content-template tag posts)}))
+
+(defn notfound-page
+  "Render a 404 page"
+  [posts]
+  (from-master
+   {:head (nf-head-template posts)
+    :sidebar (nf-sidebar-template posts)
+    :main (nf-content-template posts)}))
