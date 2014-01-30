@@ -87,6 +87,10 @@
 (defn transform!
   "Go through all passes, starting afresh and producing the final result."
   []
+  (info "Copying into work...")
+  (fs/delete-dir (:out-dir @config))
+  (fs/copy-dir (:input-dir @config)
+               (:out-dir @config))
   (let [_ (info "Reading the files...")
         posts (read-files)
         _ (info "Doing analysis on them...")

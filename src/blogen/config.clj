@@ -4,8 +4,10 @@
   (:import [java.io PushbackReader]))
 
 (def ^:private default-config
-  {;; org output & our primary input
-   :out-dir "/home/progo/temp/blog/"
+  {;; org's output and our input
+   :input-dir "/home/progo/temp/blog/"
+   ;; our work directory copied from :input-dir
+   :out-dir "/home/progo/temp/blog_out/"
    ;; Where the original material lies
    :original-dir "/home/progo/dokumentit/blog/"
    ;; The base url for results
