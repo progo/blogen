@@ -8,6 +8,7 @@
 
   DEFINITION: A revision is a map with keys :hash, :date and :note."
   (:require [clj-time.format]
+            [dire.core :refer [with-handler!]]
             [me.raynes.conch :refer [programs]])
   (:use [blogen.config]))
 
@@ -55,3 +56,9 @@
       (.split "\\n%%\\n")
       seq
       ((partial map read-revision))))
+
+;; Let's apply something like this
+;; (with-handler! #'history
+;;   ""
+;;   java.lang.NullPointerException
+;;   (constantly ()))
