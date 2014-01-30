@@ -132,7 +132,7 @@
      (> major-count 1)
      false
      :else
-     false)))
+     true)))
 
 ;;;; Post listings
 
@@ -147,7 +147,7 @@
    [:.tag-list-oneline]
    (html/content (build-tags (:tags p) (:all-tags p)))
    [:.post-rev-date]
-   (html/content (format-date (utils/post-last-modified p)))
+   (html/content (format-date (utils/post-last-major-modified p)))
    [:.post-created-date]
    (html/content (format-date (:created p)))
    [:.post-is-updated]
