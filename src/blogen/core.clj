@@ -39,50 +39,38 @@
 (defn original-file-location
   "Given output HTML file, try to determine the location of original
   .org file. Relies on absolute paths that are found in config."
-  [file]
-  (if (.startsWith file (:out-dir @config))
+  [dir file]
+  (if (.startsWith file dir)
     (-> (str (:original-dir @config)
-             (subs file (count (:out-dir @config))))
+             (subs file (count dir)))
         (.replaceFirst "\\.html$" ".org"))))
 
-;;; TODO maybe have depth taken into account
 (defn relative-path
   "Predict a relative path for an absolute path."
-  [path]
-  (-> (subs path (count (:out-dir @config)))
+  [dir path]
+  (-> (subs path (count dir))
       (.replaceFirst "^/" "")))
-
-(defn file-depth
-  "Calculate the directory depth of the given path. Assumes absolute
-  paths that begin with config var `blog-dir'."
-  [path]
-  (-> path
-      relative-path
-      seq
-      ((partial filter #{\/}))
-      count))
 
 (defn collect-data
   "Given seq of file names read them and parse into a seq of maps."
-  [files]
+  [dir files]
   (for [file files]
-    (let [original (original-file-location file)
+    (let [original (original-file-location dir file)
           post (read-html-file file)]
       (merge
        (post/all-info post)
        {:history (versions/history original)}
-       {:path-depth (file-depth file)
-        :relative-path (relative-path file)
+       {:relative-path (relative-path dir file)
         :original-path original
         :path file}))))
 
 (defn read-files
   "First pass. Collect all files and their data in one data structure.
   These are the posts within their own contexts."
-  []
-  (-> (search-files (:out-dir @config) (:excludes @config))
-      collect-data
-      ((partial filter post/ready-to-publish?))))
+  [dir excludes]
+  (->> (search-files dir excludes)
+       (collect-data dir)
+       ((partial filter post/ready-to-publish?))))
 
 (defn transform!
   "Go through all passes, starting afresh and producing the final result."
@@ -92,7 +80,8 @@
   (fs/copy-dir (:input-dir @config)
                (:out-dir @config))
   (let [_ (info "Reading the files...")
-        posts (read-files)
+        posts (read-files (:out-dir @config)
+                          (:excludes @config))
         _ (info "Doing analysis on them...")
         posts (analysis/analyze-posts posts)]
     (info "Creating single posts...")
@@ -134,12 +123,10 @@
         (-> p
             (assoc :content 'STRIPPED)
             (assoc :original-content 'STRIPPED)))]
-  (defn- read-files'
-    "Debug aux for examining the data we collect from posts."
-    []
-    (map dbg-strip-big-bits (read-files)))
   (defn- analyze-posts'
     "Debug aux again to help with 2nd phase."
     []
-    (let [ap (analysis/analyze-posts (read-files))]
+    (let [ap (analysis/analyze-posts
+              (read-files (:input-dir @config)
+                          (:excludes @config)))]
       (map dbg-strip-big-bits ap))))
