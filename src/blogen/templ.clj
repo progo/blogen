@@ -106,6 +106,11 @@
    [post]
    [:#post-created] (html/content
                      (format-date (:created post)))
+   [:#related-posts :li]
+   (html/clone-for
+    [rp (:related-posts post)]
+    [:.rp-url] (html/set-attr :href (from-base-url (:relative-path rp)))
+    [:.rp-title] (html/content (:title rp)))
    [:#tags] (html/content
              (build-tags (:tags post) (:all-tags post)))
    [:#post-modified] (html/content
