@@ -121,6 +121,8 @@
 (let [dbg-strip-big-bits
       (fn [p]
         (-> p
+            (update-in [:related-posts] (partial map :title))
+            (assoc :all-tags 'STRIPPED)
             (assoc :content 'STRIPPED)
             (assoc :original-content 'STRIPPED)))]
   (defn- analyze-posts'
