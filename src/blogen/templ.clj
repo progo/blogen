@@ -46,6 +46,14 @@
   [s]
   (str s " — " (:site-title @config)))
 
+(defn revision-url
+  "Build a revision url, to a location that would show this post's
+  revisions."
+  [post]
+  (.replaceFirst
+   (str (:public-repo @config)
+        (:relative-path post))
+   "\\.html$" ".org"))
 
 ;;; Helpful tag utils
 
@@ -106,6 +114,7 @@
    [post]
    [:#post-created] (html/content
                      (format-date (:created post)))
+   [:#post-revs-url] (html/set-attr :href (revision-url post))
    [:#related-posts :li]
    (html/clone-for
     [rp (:related-posts post)]
