@@ -111,7 +111,8 @@
     (spit (str (:out-dir @config)
                "all.html")
           (apply str (templ/all-posts-page posts)))
-    (info "All done!")))
+    (info "All done!"))
+  (shutdown-agents))
 
 (defn -main
   [& args]
