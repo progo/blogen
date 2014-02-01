@@ -1,0 +1,16 @@
+Blogen
+------
+
+Run (org-generated) HTML into a neat site according to my taste.
+Used for http://fwwm.us/. 
+
+So this app turns this:
+
+    https://github.com/progo/fwwmus---org               [1]
+
+into this:
+
+    https://github.com/progo/fwwm.us/tree/gh-pages      [2]
+
+(Help is given by scripts in root of [1] and of course the org 
+configuration of mine in .emacs.)
