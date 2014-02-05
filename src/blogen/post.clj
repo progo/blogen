@@ -63,10 +63,10 @@
 
 (defn- remove-empty-paragraphs
   "Remove given enlive map if only containing whitespace. Return nil
-  when removed. Checks for images and embedded."
+  when removed. Checks for images and embedded, and any anchors."
   [par]
   (when (or (seq (trim-well (html/text par)))
-            (seq (html/select par [#{:img :embed}])))
+            (seq (html/select par [#{:a :img :embed}])))
     par))
 
 ;; TODO: write walker to walk through tagsoup 'h' and do the NBSP
