@@ -111,12 +111,12 @@
     (spit (str (:out-dir @config)
                "all.html")
           (apply str (templ/all-posts-page posts)))
-    (info "All done!"))
-  (shutdown-agents))
+    (info "All done!")))
 
 (defn -main
   [& args]
-  (transform!))
+  (transform!)
+  (shutdown-agents))
 
 ;; Debug toolsies
 (let [dbg-strip-big-bits
