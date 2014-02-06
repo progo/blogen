@@ -87,8 +87,6 @@
         (html/at [:span.tag] nil)
         ; closed TS off. The empty :p is left.
         (html/at [:p :span.timestamp-wrapper] nil)
-        ; empty lines off
-        (html/at [:p :> :br] nil)
         ; dvipng
         (html/transform [[:img (html/attr-starts :src "ltxpng/")]]
                         (html/set-attr :class "dvipng"))
