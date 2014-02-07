@@ -73,23 +73,22 @@
 (defn contents-clean
   "Get processed contents of the post."
   [post]
-  (let [contents (contents-raw post)]
-    (-> contents
-        ; duplicate headline off
-        (html/at [:h1.title] nil)
-        ; tags off
-        (html/at [:span.tag] nil)
-        ; closed TS off. The empty :p is left.
-        (html/at [:p :span.timestamp-wrapper] nil)
-        ; dvipng
-        (html/transform [[:img (html/attr-starts :src "ltxpng/")]]
-                        (html/set-attr :class "dvipng"))
-        ; empty paragraphs off
-        (html/transform [:p] remove-empty-paragraphs)
-        ; trim headings
-        ; Let's disable for time being. Let's be more clever about it.
-        ; (html/at [#{:h1 :h2 :h3 :h4 :h5}] clean-headings)
-        )))
+  (-> (contents-raw post)
+      ; duplicate headline off
+      (html/at [:h1.title] nil)
+      ; tags off
+      (html/at [:span.tag] nil)
+      ; closed TS off. The empty :p is left.
+      (html/at [:p :span.timestamp-wrapper] nil)
+      ; dvipng
+      (html/transform [[:img (html/attr-starts :src "ltxpng/")]]
+                      (html/set-attr :class "dvipng"))
+      ; empty paragraphs off
+      (html/transform [:p] remove-empty-paragraphs)
+      ; trim headings
+      ; Let's disable for time being. Let's be more clever about it.
+      ; (html/at [#{:h1 :h2 :h3 :h4 :h5}] clean-headings)
+      ))
 
 ;; The UID/persistent ID tries to keep as simple as possible.
 (defn persistent-id
