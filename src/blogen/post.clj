@@ -52,14 +52,8 @@
   "Trim the usual whitespace and NBSP's."
   [s]
   (-> s
-      (.replace "\u00a0" " ")  ; nbsp
+      (.replace "\u00a0" " ")
       .trim))
-
-(defn htmlify
-  "Turn any enlive structure to (X)HTML string. Do note that this is
-  not needed with enlive template functions."
-  [parsed-stuff]
-  (apply str (html/emit* parsed-stuff)))
 
 (defn- remove-empty-paragraphs
   "Remove given enlive map if only containing whitespace. Return nil
