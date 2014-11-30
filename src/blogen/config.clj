@@ -33,7 +33,7 @@
    :date-format "dd.MM.YYYY"
    :datetime-format "dd.MM.YYYY HH:mm"
    ;; A couple of self-describing options
-   :site-title "Foobarly adventures"
+   :site-title "fwwm.us"
    :subtitle ""
    })
 
