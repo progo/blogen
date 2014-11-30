@@ -31,7 +31,7 @@
   "Basing on revision data (map) determine if this revision is a major
   one."
   [rev]
-  (boolean (re-find #"MAJOR|XXX|UP"
+  (boolean (re-find #"MAJ|XXX|UP"
                     (:note rev))))
 
 (defn read-revision
