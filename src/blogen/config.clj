@@ -15,7 +15,7 @@
    ;; Domain needed for RSS
    :domain "http://fwwm.us/"
    ;; public repo uri for version links
-   :public-repo "https://github.com/progo/fwwmus---org/commits/master/"
+   :public-repo "https://github.com/progo/fwwmus---org/commits/main/"
    ;; HTML/enlive templates
    :template-dir "/home/progo/dokumentit/blog/templates/"
    ;; Set of full path patterns that are to be excluded
