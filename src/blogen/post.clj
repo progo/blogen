@@ -111,7 +111,8 @@
   (-> post
       (html/select [:p])
       first
-      (html/at [:p] html/unwrap)))
+      (html/at [:p] html/unwrap)
+      (html/at [:a] html/unwrap)))
 
 (defn count-words
   "Collect a number of words in the post."
