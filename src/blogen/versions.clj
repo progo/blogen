@@ -37,27 +37,24 @@
 (defn read-revision
   "Read a revision from git output."
   [rev-str]
-  (let [lines (vec (.split rev-str "\\n"))
-        pieces (for [l lines]
-                 (re-matches #"^%([A-Z]+): (.+?)\s*$" l))
-        rev (into {} (for [p pieces]
-                       [(keyword (.toLowerCase (p 1)))
-                        (p 2)]))
-        rev (update-in rev [:date]
-                       (partial clj-time.format/parse
-                                git-log-date-format))
-        rev (assoc rev :major? (major-revision? rev))]
-    rev))
+  (when (seq rev-str)
+    (let [lines (vec (.split rev-str "\\n"))
+          pieces (for [l lines]
+                   (re-matches #"^%([A-Z]+): (.+?)\s*$" l))
+          rev (into {} (for [p pieces]
+                         [(keyword (.toLowerCase (p 1)))
+                          (p 2)]))
+          rev (update-in rev [:date]
+                         (partial clj-time.format/parse
+                                  git-log-date-format))
+          rev (assoc rev :major? (major-revision? rev))]
+      rev)))
 
 (defn history
   "Get and parse revision history of given file."
   [path]
   (let [git-output (apply git (conj git-arguments path))
         git-output (seq (.split git-output "\\n%%\\n"))]
-    (map read-revision git-output)))
-
-;; Let's apply something like this
-;; (with-handler! #'history
-;;   ""
-;;   java.lang.NullPointerException
-;;   (constantly ()))
+    (filter
+     identity
+     (map read-revision git-output))))
