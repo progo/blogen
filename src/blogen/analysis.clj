@@ -10,9 +10,6 @@
    [blogen.post :as post]
    [blogen.versions :as versions]))
 
-;; suggestions, todo:
-;; - similar articles (by tag intersection and perhaps title exploding)
-
 (defn neighboring-posts
   "Check and 'link' each post with their precedors and successors."
   [posts]
