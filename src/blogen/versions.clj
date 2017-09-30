@@ -52,10 +52,9 @@
 (defn history
   "Get and parse revision history of given file."
   [path]
-  (-> (apply git (conj git-arguments path))
-      (.split "\\n%%\\n")
-      seq
-      ((partial map read-revision))))
+  (let [git-output (apply git (conj git-arguments path))
+        git-output (seq (.split git-output "\\n%%\\n"))]
+    (map read-revision git-output)))
 
 ;; Let's apply something like this
 ;; (with-handler! #'history
