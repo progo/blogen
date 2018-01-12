@@ -75,7 +75,7 @@
   [post]
   (-> (contents-raw post)
       ;; duplicate headline off
-      (html/at [:#sec-1] nil)
+      (html/at [:.outline-2 :> :h2] nil)
       ; toc under the first heading
       ;; (html/transform [html/root]
       ;;                 (html/move [:#table-of-contents]
