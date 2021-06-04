@@ -242,7 +242,7 @@
    [posts]
    [:ul.all-posts-list :li]
    (html/clone-for
-    [p (sort blogen.sort/by-title posts)]
+    [p (sort blogen.sort/by-creation-date posts)]
     (transform-post-list-item p))]
   [allposts-head-template [:head]
    [posts]

@@ -11,7 +11,7 @@
    [blogen.versions :as versions]))
 
 (defn neighboring-posts
-  "Check and 'link' each post with their precedors and successors."
+  "Check and 'link' each post with their predecessors and successors."
   [posts]
   (let [creation-order (vec (sort sort/by-creation-date posts))]
     (for [post posts]

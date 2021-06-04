@@ -119,13 +119,12 @@
   (shutdown-agents))
 
 ;; Debug toolsies
-(let [dbg-strip-big-bits
-      (fn [p]
-        (-> p
-            (update-in [:related-posts] (partial map :title))
-            (assoc :all-tags 'STRIPPED)
-            (assoc :content 'STRIPPED)
-            (assoc :original-content 'STRIPPED)))]
+(let [dbg-strip-big-bits (fn [p]
+                           (-> p
+                               (update-in [:related-posts] (partial map :title))
+                               (assoc :all-tags 'STRIPPED)
+                               (assoc :content 'STRIPPED)
+                               (assoc :original-content 'STRIPPED)))]
   (defn- analyze-posts'
     "Debug aux again to help with 2nd phase."
     []
