@@ -266,9 +266,9 @@
    [:.tag-name] (html/content tag)
    [:a.tag-rss] (html/set-attr :href (str tag ".rss"))
    [:#article-list :ul :li]
-   (html/clone-for
-    [p (filter (has-tag? tag) posts)]
-    (transform-post-list-item p))])
+   (html/clone-for [p (->> (filter (has-tag? tag) posts)
+                           (sort blogen.sort/by-title))]
+                   (transform-post-list-item p))])
 
 ;; 404 page. Shows well that we could use a little abstraction over
 ;; here.
